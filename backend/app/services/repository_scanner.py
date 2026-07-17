@@ -4,9 +4,20 @@ import subprocess
 import uuid
 
 
+IGNORE_DIRS = {
+    ".git",
+    "node_modules",
+    "__pycache__",
+    ".next",
+    "dist",
+    "build"
+}
+
+
 def clone_repository(repo_url: str):
 
     temp_dir = f"temp_repo_{uuid.uuid4().hex[:8]}"
+
 
     subprocess.run(
         [
@@ -20,7 +31,9 @@ def clone_repository(repo_url: str):
         check=True
     )
 
+
     return temp_dir
+
 
 
 def scan_repository(repo_path: str):
@@ -30,51 +43,63 @@ def scan_repository(repo_path: str):
 
     languages = {}
 
-    architecture = []
 
     for root, dirs, files in os.walk(repo_path):
 
+        # ignore unnecessary folders
+        dirs[:] = [
+            d for d in dirs
+            if d not in IGNORE_DIRS
+        ]
+
+
         for file in files:
+
 
             total_files += 1
 
+
             extension = os.path.splitext(file)[1].lower()
+
 
             if extension:
 
-                languages[extension] = languages.get(extension, 0) + 1
+                languages[extension] = (
+                    languages.get(extension, 0) + 1
+                )
 
-            path = os.path.join(root, file)
+
+            file_path = os.path.join(
+                root,
+                file
+            )
+
 
             try:
 
                 with open(
-                    path,
+                    file_path,
                     "r",
                     encoding="utf-8",
                     errors="ignore"
                 ) as f:
 
-                    total_lines += len(f.readlines())
+                    total_lines += len(
+                        f.readlines()
+                    )
+
 
             except:
+
                 pass
 
-    architecture = [
 
-        "GitHub Repository",
 
-        "Presentation Layer",
+    shutil.rmtree(
+        repo_path,
+        ignore_errors=True
+    )
 
-        "Client Interaction Layer",
-
-        "Asset Management Layer",
-
-        "Deployment Environment"
-
-    ]
-
-    shutil.rmtree(repo_path, ignore_errors=True)
 
     return {
 
@@ -84,6 +109,18 @@ def scan_repository(repo_path: str):
 
         "languages": languages,
 
-        "architecture_flow": architecture
+        "architecture_flow": [
+
+            "Repository Layer",
+
+            "Application Layer",
+
+            "Business Logic Layer",
+
+            "Data Layer",
+
+            "Deployment Layer"
+
+        ]
 
     }
