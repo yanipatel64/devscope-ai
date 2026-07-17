@@ -14,21 +14,33 @@ export default function IntelligenceDashboard({ data }: Props) {
 
 
   const healthMetrics = [
-    {
-      name: "Code Maintainability",
-      score: data.project_score || 0,
-    },
-    {
-      name: "Security Readiness",
-      score: data.security_score === "A" ? 95 : 80,
-    },
-    {
-      name: "Documentation Quality",
-      score: ai.documentation_suggestions?.length
+  {
+    name: "Code Maintainability",
+    score: ai.maintainability_score || 0,
+  },
+
+  {
+    name: "Security Readiness",
+    score:
+      data.security_score === "A"
+        ? 95
+        : data.security_score === "B"
         ? 85
-        : 70,
-    },
-  ];
+        : data.security_score === "C"
+        ? 70
+        : 50,
+  },
+
+  {
+    name: "Documentation Quality",
+    score: ai.documentation_score || 0,
+  },
+
+  {
+    name: "Architecture Quality",
+    score: ai.architecture_score || 0,
+  },
+];
 
 
 
