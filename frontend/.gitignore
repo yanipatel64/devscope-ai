@@ -68,3 +68,10 @@ temp_repo_*
 .env
 
 backend/temp_repo_*
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+venv/
