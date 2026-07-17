@@ -17,7 +17,7 @@ init_db()
 
 
 
-# CORS Configuration
+# CORS
 
 origins = [
     "http://localhost:3000",
@@ -72,12 +72,15 @@ def analyze(data: dict):
             )
 
 
-        result = analyze_repository(repo_url)
+        result = analyze_repository(
+            repo_url
+        )
 
 
         return {
             "analysis": result
         }
+
 
 
     except Exception as e:

@@ -19,76 +19,97 @@ def generate_ai_insights(repository_info):
 
     prompt = f"""
 
-You are a Senior Software Architect and Principal Engineer.
+You are a Principal Software Architect reviewing a GitHub repository.
 
-Analyze this GitHub repository.
+Analyze only the provided repository metadata.
 
-Repository Information:
+Repository:
 
 {json.dumps(repository_info, indent=2)}
 
 
-Return ONLY valid JSON.
+Return ONLY JSON.
 
-Generate:
+No markdown.
+
+No explanation.
+
+
+
+FORMAT:
+
 
 {{
-    "project_score": number,
+"project_score":70,
 
-    "security_score": "A" | "B" | "C" | "D",
+"security_score":"C",
 
-    "maintainability_score": number,
+"maintainability_score":65,
 
-    "documentation_score": number,
+"documentation_score":70,
 
-    "architecture_score": number,
+"architecture_score":60,
 
-    "risk_level": "Low" | "Medium" | "High",
+"risk_level":"Medium",
 
-
-    "strengths": [
-        "point 1",
-        "point 2",
-        "point 3"
-    ],
+"repository_health":"Needs Attention",
 
 
-    "possible_improvements": [
-        "point 1",
-        "point 2",
-        "point 3"
-    ],
+"architecture_flow":[
+"GitHub Repository",
+"Presentation Layer",
+"Client Interaction Layer",
+"Asset Management Layer",
+"Deployment Environment"
+],
 
 
-    "architecture_observations": [
-        "point 1",
-        "point 2",
-        "point 3"
-    ],
+"strengths":[
+""
+],
 
 
-    "security_recommendations": [
-        "point 1",
-        "point 2",
-        "point 3"
-    ],
+"possible_improvements":[
+""
+],
 
 
-    "documentation_suggestions": [
-        "point 1",
-        "point 2",
-        "point 3"
-    ]
+"security_recommendations":[
+""
+],
+
+
+"documentation_suggestions":[
+""
+]
 
 }}
 
 
+
 Rules:
 
-- Return only JSON.
-- No markdown.
-- No explanation.
-- Keep recommendations practical.
+Static websites:
+
+Professional startup website:
+70-85
+
+
+Do not recommend React migration.
+
+Do not invent security issues.
+
+Give exactly:
+
+5 strengths
+
+5 improvements
+
+5 security recommendations
+
+5 documentation suggestions
+
+
 """
 
 
@@ -96,16 +117,29 @@ Rules:
 
         model="gemini-3.1-flash-lite",
 
-        contents=prompt
+        contents=prompt,
+
+        config={
+            "temperature":0.2
+        }
 
     )
 
 
-    text = response.text
+    text=response.text
 
 
-    text = text.replace("```json", "")
-    text = text.replace("```", "")
+    text=text.replace(
+        "```json",
+        ""
+    )
+
+    text=text.replace(
+        "```",
+        ""
+    )
 
 
-    return json.loads(text.strip())
+    return json.loads(
+        text.strip()
+    )

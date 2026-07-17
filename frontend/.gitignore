@@ -49,3 +49,22 @@ backend/temp_repo_*/
 
 # Virtual environment
 backend/venv/
+
+backend/temp_repositories/
+backend/temp_repo_*
+__pycache__/
+*.pyc
+
+venv/
+__pycache__/
+*.pyc
+.env
+temp_repo_*
+
+venv/
+__pycache__/
+*.pyc
+temp_repo_*
+.env
+
+backend/temp_repo_*

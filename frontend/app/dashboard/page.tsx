@@ -5,18 +5,23 @@ import Dashboard from "@/components/dashboard/Dashboard";
 
 export default function DashboardPage() {
 
+
   return (
 
-    <main>
+    <main className="min-h-screen bg-black text-white">
 
       <Navbar />
 
+
       <RepositoryAnalyzer />
 
+
       <Dashboard />
+
 
     </main>
 
   );
+
 
 }

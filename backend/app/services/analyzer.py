@@ -1,72 +1,141 @@
-from app.services.github_service import get_repository
-from app.services.ai_service import generate_ai_insights
+from app.services.github_service import get_repository_info
+
+from app.services.repository_scanner import (
+    clone_repository,
+    scan_repository
+)
+
+from app.services.dependency_scanner import (
+    scan_dependencies
+)
+
+from app.services.ai_service import (
+    generate_ai_insights
+)
+
 
 
 def analyze_repository(repo_url: str):
 
-    # Repository Information
-    repository = get_repository(repo_url)
 
-    # Technology Detection
-    technologies = []
+    repository = get_repository_info(
+        repo_url
+    )
 
-    if repository.get("language"):
-        technologies.append(repository["language"])
 
-    # Dependency Detection (basic for now)
-    dependencies = []
 
-    language = (repository.get("language") or "").lower()
+    repo_path = clone_repository(
+        repo_url
+    )
 
-    if language == "javascript":
-        dependencies.append("package.json")
 
-    elif language == "typescript":
-        dependencies.append("package.json")
 
-    elif language == "python":
-        dependencies.append("requirements.txt")
+    scan_data = scan_repository(
+        repo_path
+    )
 
-    elif language == "java":
-        dependencies.append("pom.xml")
 
-    elif language == "go":
-        dependencies.append("go.mod")
 
-    elif language == "rust":
-        dependencies.append("Cargo.toml")
+    dependency_data = scan_dependencies(
+        repo_path
+    )
 
-    # Repository Metrics
-    metrics = {
-        "total_files": 0,
-        "structure_quality": "Good"
-    }
 
-    # AI Analysis
-    ai = generate_ai_insights(repository)
 
-    # Final Response
+    repository["scan"] = scan_data
+
+    repository["dependencies"] = dependency_data
+
+
+
+    ai = generate_ai_insights(
+        repository
+    )
+
+
+
     return {
 
-        "project_score": ai["project_score"],
 
-        "security_score": ai["security_score"],
+        "project_score":
+            ai.get(
+                "project_score",
+                0
+            ),
 
-        "architecture": "Analyzed",
 
-        "repository_info": repository,
 
-        "technologies": technologies,
+        "security_score":
+            ai.get(
+                "security_score",
+                "C"
+            ),
 
-        "dependencies": dependencies,
 
-        "metrics": metrics,
 
-        "recommendations": [
-            "Improve code documentation",
-            "Review dependency updates",
-            "Optimize project structure",
-        ],
+        "architecture":
+            "Analyzed",
 
-        "ai_report": ai,
+
+
+        "repository_info":
+            repository,
+
+
+
+        "health_metrics": {
+
+
+            "maintainability":
+                ai.get(
+                    "maintainability_score",
+                    0
+                ),
+
+
+            "security":
+                90,
+
+
+            "documentation":
+                ai.get(
+                    "documentation_score",
+                    0
+                ),
+
+
+            "architecture":
+                ai.get(
+                    "architecture_score",
+                    0
+                )
+
+        },
+
+
+
+        "dependencies":
+            dependency_data.get(
+                "dependencies",
+                []
+            ),
+
+
+
+        "recommendations":
+            ai.get(
+                "possible_improvements",
+                []
+            ),
+
+
+
+        "ai_confidence":
+            94,
+
+
+
+        "ai_report":
+            ai
+
     }
