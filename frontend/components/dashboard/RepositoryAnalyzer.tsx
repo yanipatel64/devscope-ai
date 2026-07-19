@@ -85,8 +85,12 @@ export default function RepositoryAnalyzer() {
     }, 1200);
 
     try {
-      const response = await fetch(
-  `http://127.0.0.1:8000/analyze?repo_url=${encodeURIComponent(repoUrl)}`
+      const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://devscope-ai-2tqa.onrender.com";
+
+const response = await fetch(
+  `${API_URL}/analyze?repo_url=${encodeURIComponent(repoUrl)}`
 );
 
 console.log("STATUS:", response.status);
