@@ -10,53 +10,90 @@ import {
 
 interface AnalysisData {
 
-  project_score: number;
 
-  security_score: string;
+  scores:{
 
-  architecture: string;
+    project_health:number;
 
-  repository_info?: {
+    security:number;
 
-    name: string;
+    architecture:number;
 
-    owner: string;
-
-    language: string;
-
-    stars: number;
-
-    forks: number;
-
-    description?: string;
+    maintainability:number;
 
   };
 
 
-  recommendations?: string[];
+  repository_info?:{
 
+    name:string;
 
-  ai_report?: {
+    owner:string;
 
-    strengths?: string[];
+    language:string;
 
-    possible_improvements?: string[];
+    stars:number;
 
-    security_recommendations?: string[];
+    forks:number;
 
-    documentation_suggestions?: string[];
+    description?:string;
 
   };
+
+
+  repository_metrics?:{
+
+    total_files:number;
+
+    total_lines:number;
+
+
+    languages?:{
+      [key:string]:number;
+    };
+
+
+    folder_structure:string[];
+
+
+    important_files:string[];
+
+
+    architecture_flow:{
+  layer:string;
+  reason:string;
+}[];
+
+  };
+
+
+  recommendations?:string[];
+
+
+  ai_analysis?:string;
+
+
+  score_factors?:{
+
+    project_health?:string[];
+
+    security?:string[];
+
+    architecture?:string[];
+
+    maintainability?:string[];
+
+  };
+
 
 }
-
 
 
 interface AnalysisContextType {
 
   analysis: AnalysisData | null;
 
-  setAnalysis: (data: AnalysisData) => void;
+  setAnalysis: (data: AnalysisData | null) => void;
 
 }
 

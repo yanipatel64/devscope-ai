@@ -1,810 +1,276 @@
 "use client";
 
 import { useState } from "react";
+
+import { exportPDF } from "./PDFExporter";
 import { useAnalysis } from "@/context/AnalysisContext";
 
+import ScoreCard from "./ScoreCard";
+import RepositoryInfo from "./RepositoryInfo";
+import RepositoryAnalytics from "./RepositoryAnalytics";
+import RepositoryExplorer from "./RepositoryExplorer";
+import ArchitectureDiagram from "./ArchitectureDiagram";
+import AIRecommendations from "./AIRecommendations";
+import MarkdownReport from "./MarkdownReport";
+import LoadingOverlay from "./LoadingOverlay";
+import DashboardSummary from "./DashboardSummary";
+import ExecutiveSummary from "./ExecutiveSummary";
+import RepositoryHero from "./RepositoryHero";
+import AIInsights from "./AIInsights";
 
-interface RepositoryInfo {
+import type { AnalysisResult } from "@/types/repository";
 
-  name:string;
-  owner:string;
-  language:string;
-  stars:number;
-  forks:number;
-  description:string;
-  updated:string;
+export default function RepositoryAnalyzer() {
+  const { setAnalysis } = useAnalysis();
 
-}
+  const [repoUrl, setRepoUrl] = useState("");
 
+  const [loading, setLoading] = useState(false);
 
-interface AIReport {
+  const [step, setStep] = useState("");
 
-  project_score?:number;
-  security_score?:string;
+  const [result, setResult] =
+    useState<AnalysisResult | null>(null);
 
-  maintainability_score?:number;
-  documentation_score?:number;
-  architecture_score?:number;
+  const scoreData = result
+    ? [
+        {
+          name: "Health",
+          score: result.scores.project_health,
+        },
+        {
+          name: "Security",
+          score: result.scores.security,
+        },
+        {
+          name: "Architecture",
+          score: result.scores.architecture,
+        },
+        {
+          name: "Maintainability",
+          score: result.scores.maintainability,
+        },
+      ]
+    : [];
 
-  risk_level?:string;
-  repository_health?:string;
+  const languageData = result
+    ? Object.entries(
+        result.repository_metrics.languages
+      ).map(([name, value]) => ({
+        name,
+        value,
+      }))
+    : [];
 
-  strengths?:string[];
-  possible_improvements?:string[];
-  security_recommendations?:string[];
-  documentation_suggestions?:string[];
+  async function analyzeRepository() {
+    if (!repoUrl.trim()) {
+      alert("Enter GitHub repository URL");
+      return;
+    }
 
-  architecture_flow?:string[];
+    setLoading(true);
 
-}
+    const steps = [
+      "Scanning repository...",
+      "Analyzing technologies...",
+      "Running AI Engine...",
+      "Generating report...",
+    ];
 
+    let i = 0;
 
-interface Analysis {
+    const timer = setInterval(() => {
+      setStep(steps[i]);
+      i = (i + 1) % steps.length;
+    }, 1200);
 
-  project_score:number;
-  security_score:string;
-  architecture:string;
-
-  risk_level?:string;
-
-  repository_info:RepositoryInfo;
-
-  ai_report?:AIReport;
-
-}
-
-
-
-
-export default function RepositoryAnalyzer(){
-
-
-const {setAnalysis}=useAnalysis();
-
-
-const [repoUrl,setRepoUrl]=useState("");
-
-const [loading,setLoading]=useState(false);
-
-const [step,setStep]=useState("");
-
-const [result,setResult]=useState<Analysis|null>(null);
-
-
-
-const downloadReport=()=>{
-
-if(!result) return;
-
-
-const blob=new Blob(
-[
-JSON.stringify(result,null,2)
-],
-{
-type:"application/json"
-}
+    try {
+      const response = await fetch(
+  `http://127.0.0.1:8000/analyze?repo_url=${encodeURIComponent(repoUrl)}`
 );
 
+console.log("STATUS:", response.status);
 
-const url=URL.createObjectURL(blob);
+const text = await response.text();
 
+console.log("RAW RESPONSE:", text);
 
-const link=document.createElement("a");
-
-
-link.href=url;
-
-
-link.download=
-`${result.repository_info.name}-DevScope-AI-Report.json`;
-
-
-document.body.appendChild(link);
-
-
-link.click();
-
-
-document.body.removeChild(link);
-
-
-URL.revokeObjectURL(url);
-
-};
-
-
-
-
-
-const analyzeRepository=async()=>{
-
-
-if(!repoUrl){
-
-alert("Please enter GitHub repository URL");
-
-return;
-
+if (!response.ok) {
+  throw new Error(text);
 }
 
+const data = JSON.parse(text);
 
+console.log(data);
 
-setLoading(true);
+setResult(data.analysis);
+setAnalysis(data.analysis);
 
-setResult(null);
+    } catch (err) {
+      console.error(err);
 
+      alert("Unable to connect with DevScope AI Engine");
+    } finally {
+      clearInterval(timer);
+      setLoading(false);
+      setStep("");
+    }
+  }
 
+  function downloadReport() {
+  if (!result) return;
 
-const steps=[
-
-"Scanning repository files...",
-
-"Understanding project architecture...",
-
-"Evaluating engineering quality...",
-
-"Generating AI insights..."
-
-];
-
-
-let i=0;
-
-
-const timer=setInterval(()=>{
-
-setStep(
-steps[i]
-);
-
-i++;
-
-if(i>=steps.length)
-i=0;
-
-
-},1200);
-
-
-
-
-try{
-
-
-const response=await fetch(
-
-"http://127.0.0.1:8000/analyze",
-
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-
-body:JSON.stringify({
-
-url:repoUrl
-
-})
-
+  exportPDF(result);
 }
 
-);
+  return (
+        <section className="min-h-screen px-6 py-24">
 
+      <div className="mx-auto max-w-7xl">
 
+        <div className="text-center">
 
+          <p className="uppercase tracking-[0.3em] text-violet-400">
+            AI Repository Intelligence
+          </p>
 
-if(!response.ok){
+          <h1 className="mt-4 text-5xl font-bold">
+            Analyze Any GitHub Project
+          </h1>
 
-throw new Error("API Error");
+          <p className="mt-5 text-gray-400">
+            Understand software projects with AI-powered engineering intelligence.
+          </p>
 
-}
+        </div>
 
+        <div className="mt-12 flex gap-4">
 
+          <input
+            value={repoUrl}
+            onChange={(e) => setRepoUrl(e.target.value)}
+            placeholder="https://github.com/user/repository"
+            className="flex-1 rounded-xl border border-gray-800 bg-gray-950 px-5 py-4 text-white outline-none"
+          />
 
-const data=await response.json();
+          <button
+            onClick={analyzeRepository}
+            disabled={loading}
+            className="rounded-xl bg-violet-600 px-8 font-semibold transition hover:bg-violet-500 disabled:opacity-50"
+          >
+            {loading ? "Analyzing..." : "Analyze"}
+          </button>
 
+        </div>
 
+        {loading && (
+  <LoadingOverlay step={step} />
+)}
 
-console.log(
-"DevScope Result:",
-data
-);
+        {result && (
 
+          <div className="mt-16 space-y-10">
 
+              <ExecutiveSummary
+  health={result.scores.project_health}
+  security={result.scores.security}
+  architecture={result.scores.architecture}
+  maintainability={result.scores.maintainability}
+  complexity={result.complexity}
+/>
 
-const analysis=data.analysis;
-
-
-
-setResult(analysis);
-
-
-setAnalysis(analysis);
-
-
-
-}
-
-
-catch(error){
-
-
-console.error(error);
-
-
-alert(
-"Unable to connect with DevScope AI Engine"
-);
-
-
-}
-
-
-finally{
-
-
-clearInterval(timer);
-
-
-setLoading(false);
-
-
-setStep("");
-
-
-}
-
-
-
-};
-
-
-
-
-
-
-return (
-
-<section className="min-h-screen py-24 px-6">
-
-
-<div className="max-w-6xl mx-auto">
-
-
-<div className="text-center">
-
-
-<p className="text-violet-400 uppercase tracking-widest">
-
-AI Repository Intelligence
-
-</p>
-
-
-<h1 className="text-5xl font-bold mt-4">
-
-Analyze Any GitHub Project
-
-</h1>
-
-
-<p className="text-gray-400 mt-5">
-
-Understand software projects with AI-powered engineering intelligence.
-
-</p>
-
-
-</div>
-
-
-
-
-
-<div className="mt-12 flex flex-col md:flex-row gap-4">
-
-
-<input
-
-value={repoUrl}
-
-onChange={
-(e)=>setRepoUrl(e.target.value)
-}
-
-placeholder="https://github.com/user/project"
-
-
-className="
-flex-1
-rounded-xl
-border
-border-gray-700
-bg-gray-950
-px-5
-py-4
-text-white
-"
-
+<AIInsights
+  scores={result.scores}
 />
 
 
-
-<button
-
-onClick={analyzeRepository}
-
-disabled={loading}
-
-className="
-rounded-xl
-bg-violet-600
-px-8
-py-4
-font-semibold
-disabled:opacity-50
-"
-
->
-
-
-{
-loading
-?
-"Analyzing..."
-:
-"Analyze"
-}
-
-
-</button>
-
-
-</div>
-
-
-
-
-
-{
-loading &&
-
-<p className="text-center mt-6 text-violet-400">
-
-{step}
-
-</p>
-
-}
-
-
-
-
-
-{
-result &&
-
-<div className="mt-16 space-y-8">
-
-
-
-
-
-<Section title="Repository Intelligence">
-
-
-<div className="grid md:grid-cols-3 gap-8">
-
-
-<Info
-title="Name"
-value={result.repository_info.name}
+            <DashboardSummary
+  repository={result.repository_info}
+  metrics={result.repository_metrics}
 />
 
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
 
-<Info
-title="Owner"
-value={result.repository_info.owner}
+              <ScoreCard
+                title="Project Health"
+                score={result.scores.project_health}
+                color="green"
+                factors={result.score_factors?.project_health ?? []}
+              />
+
+              <ScoreCard
+                title="Security"
+                score={result.scores.security}
+                color="blue"
+                factors={result.score_factors?.security ?? []}
+              />
+
+              <ScoreCard
+                title="Architecture"
+                score={result.scores.architecture}
+                color="purple"
+                factors={result.score_factors?.architecture ?? []}
+              />
+
+              <ScoreCard
+                title="Maintainability"
+                score={result.scores.maintainability}
+                color="orange"
+                factors={result.score_factors?.maintainability ?? []}
+              />
+
+            </div>
+
+            <RepositoryHero
+  repository={result.repository_info}
+  repoUrl={repoUrl}
+  onDownload={downloadReport}
 />
 
+            <RepositoryInfo
+              repository={result.repository_info}
+              metrics={result.repository_metrics}
+            />
 
-<Info
-title="Language"
-value={result.repository_info.language}
+            <RepositoryAnalytics
+    scores={result.scores}
+    languages={result.repository_metrics.languages}
 />
 
+            <RepositoryExplorer
+              folders={result.repository_metrics.folder_structure}
+              files={result.repository_metrics.important_files}
+            />
 
-<Info
-title="Stars"
-value={String(result.repository_info.stars)}
+            <ArchitectureDiagram
+                architecture={result.repository_metrics.architecture_flow}
 />
 
+            <AIRecommendations
+              recommendations={result.recommendations}
+            />
 
-<Info
-title="Forks"
-value={String(result.repository_info.forks)}
-/>
+            <MarkdownReport
+              markdown={result.ai_analysis}
+            />
 
+            <div className="flex justify-center">
 
-<Info
-title="Updated"
-value={result.repository_info.updated}
-/>
+              <button
+                onClick={downloadReport}
+                className="rounded-xl bg-violet-600 px-8 py-3 font-semibold transition hover:bg-violet-500"
+              >
+                Download AI Intelligence Report
+              </button>
 
+            </div>
 
+          </div>
 
-</div>
+        )}
 
+      </div>
 
-</Section>
-
-
-
-
-
-
-<div className="grid md:grid-cols-4 gap-6">
-
-
-<Card
-title="Project Score"
-value={`${result.project_score}%`}
-/>
-
-
-<Card
-title="Security"
-value={result.security_score}
-/>
-
-
-<Card
-title="Architecture"
-value={result.architecture}
-/>
-
-
-<Card
-
-title="Risk"
-
-value={
-result.risk_level ||
-result.ai_report?.risk_level ||
-"Medium"
-}
-
-/>
-
-
-</div>
-
-
-
-
-
-<button
-
-onClick={downloadReport}
-
-className="
-rounded-xl
-bg-gray-800
-px-6
-py-3
-hover:bg-gray-700
-"
-
->
-
-Download AI Report
-
-</button>
-
-
-
-
-
-
-
-<Section title="AI Recommendations">
-
-<List
-
-items={
-result.ai_report?.possible_improvements || []
-}
-
-/>
-
-</Section>
-
-
-
-
-
-<Section title="AI Strengths">
-
-<List
-
-items={
-result.ai_report?.strengths || []
-}
-
-/>
-
-</Section>
-
-
-
-
-
-
-<Section title="Security Recommendations">
-
-<List
-
-items={
-result.ai_report?.security_recommendations || []
-}
-
-/>
-
-</Section>
-
-
-
-
-
-
-
-<Section title="Documentation Suggestions">
-
-
-<List
-
-items={
-result.ai_report?.documentation_suggestions || []
-}
-
-/>
-
-
-</Section>
-
-
-
-
-
-</div>
-
-}
-
-
-
-</div>
-
-</section>
-
-
-);
-
-}
-
-
-
-
-
-
-function Section(
-{
-title,
-children
-}:
-{
-title:string;
-children:React.ReactNode;
-}
-){
-
-return (
-
-<div
-
-className="
-rounded-3xl
-border
-border-gray-800
-bg-gray-950
-p-8
-"
-
->
-
-
-<h2 className="text-3xl font-bold">
-
-{title}
-
-</h2>
-
-
-<div className="mt-6">
-
-{children}
-
-</div>
-
-
-</div>
-
-);
-
-}
-
-
-
-
-
-
-
-function List(
-{
-items
-}:
-{
-items:string[];
-}
-){
-
-return (
-
-<ul className="space-y-4">
-
-
-{
-items.map(
-(item,index)=>(
-
-
-<li
-
-key={index}
-
-className="text-gray-300"
-
->
-
-<span className="text-green-400">
-
-✓
-
-</span>
-
-{" "}
-
-{item}
-
-
-</li>
-
-
-)
-
-)
-
-}
-
-
-</ul>
-
-);
-
-}
-
-
-
-
-
-
-
-function Info(
-{
-title,
-value
-}:
-{
-title:string;
-value:string;
-}
-){
-
-return (
-
-<div>
-
-
-<p className="text-gray-400">
-
-{title}
-
-</p>
-
-
-<p className="mt-2 font-semibold">
-
-{value || "N/A"}
-
-</p>
-
-
-</div>
-
-);
-
-}
-
-
-
-
-
-
-
-
-function Card(
-{
-title,
-value
-}:
-{
-title:string;
-value:string;
-}
-){
-
-return (
-
-<div
-
-className="
-rounded-3xl
-border
-border-gray-800
-bg-gray-950
-p-7
-"
-
->
-
-
-<p className="text-gray-400">
-
-{title}
-
-</p>
-
-
-<h3 className="text-4xl font-bold mt-4">
-
-{value}
-
-</h3>
-
-
-<p className="text-green-400 mt-4">
-
-✓ AI Evaluated
-
-</p>
-
-
-</div>
-
-);
-
+    </section>
+  );
 }

@@ -1,33 +1,25 @@
 "use client";
 
-import { useAnalysis } from "@/context/AnalysisContext";
 import IntelligenceDashboard from "./IntelligenceDashboard";
+import { useAnalysis } from "@/context/AnalysisContext";
 
 
-export default function Dashboard() {
+export default function Dashboard(){
+
+const {analysis}=useAnalysis();
 
 
-  const { analysis } = useAnalysis();
+if(!analysis){
+return null;
+}
 
 
+return (
 
-  if (!analysis) {
+<IntelligenceDashboard 
+data={analysis}
+/>
 
-    return null;
-
-  }
-
-
-
-  return (
-
-    <IntelligenceDashboard
-
-      data={analysis}
-
-    />
-
-  );
-
+);
 
 }

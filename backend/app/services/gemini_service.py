@@ -1,23 +1,22 @@
+print("=" * 70)
+print("LOADED GEMINI SERVICE")
+print(__file__)
+print("=" * 70)
 import os
 from dotenv import load_dotenv
 from google import genai
 
 load_dotenv()
 
-
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY not found in environment variables")
-
-
 client = genai.Client(
-    api_key=GEMINI_API_KEY
+    api_key=os.getenv("GEMINI_API_KEY")
 )
 
-
 def generate_response(prompt: str):
+
+    print("=" * 60)
+    print("USING MODEL: gemini-3.1-flash-lite")
+    print("=" * 60)
 
     response = client.models.generate_content(
         model="gemini-3.1-flash-lite",

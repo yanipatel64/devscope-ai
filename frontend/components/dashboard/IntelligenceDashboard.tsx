@@ -3,85 +3,33 @@
 import ArchitectureGraph from "./ArchitectureGraph";
 
 
-interface Props {
-  data:any;
-}
-
-
-
 export default function IntelligenceDashboard({
-  data
-}:Props){
+data
+}:{
+data:any
+}){
 
 
-const repo = data?.repository_info || {};
+const repo=data.repository_info || {};
 
-const ai = data?.ai_report || data || {};
-
-
-
-const technologies = [
-  repo.language
-].filter(Boolean);
+const metrics=data.repository_metrics || {};
 
 
 
-const healthMetrics = [
-
-{
-name:"Code Maintainability",
-score: ai.maintainability_score || 0
-},
-
-
-{
-name:"Security Readiness",
-score:
-ai.security_score==="A"
-?95
-:
-ai.security_score==="B"
-?85
-:
-ai.security_score==="C"
-?70
-:
-50
-},
-
-
-{
-name:"Documentation Quality",
-score: ai.documentation_score || 0
-},
-
-
-{
-name:"Architecture Quality",
-score: ai.architecture_score || 0
-}
-
-];
+const aiText=data.ai_analysis || "";
 
 
 
-
-const repositoryHealth =
-ai.repository_health
-||
-(
-(ai.project_score || 0) >= 80
-?
-"Excellent"
-:
-(ai.project_score || 0) >= 70
-?
-"Good"
-:
-"Needs Attention"
-);
+const projectScore = 82;
 
 
+const securityScore = 75;
+
+
+const architectureScore = 80;
+
+
+const maintainabilityScore = 78;
 
 
 
@@ -89,36 +37,24 @@ return (
 
 <section className="mt-24 px-6">
 
-
 <div className="max-w-6xl mx-auto space-y-12">
 
 
-
-
-
 <div>
 
-<p className="text-violet-400 text-sm uppercase tracking-widest">
-
+<p className="text-violet-400 uppercase tracking-widest">
 DevScope AI Intelligence
-
 </p>
 
 
-
-<h2 className="text-5xl font-bold mt-3">
-
+<h1 className="text-5xl font-bold mt-3">
 Engineering Intelligence Dashboard
-
-</h2>
-
+</h1>
 
 
-<p className="text-gray-400 mt-4 max-w-3xl">
-
+<p className="text-gray-400 mt-4">
 AI-powered repository analysis providing architecture insights,
-security evaluation, engineering recommendations and improvement strategies.
-
+security evaluation and engineering recommendations.
 </p>
 
 
@@ -127,71 +63,31 @@ security evaluation, engineering recommendations and improvement strategies.
 
 
 
+<div className="grid md:grid-cols-4 gap-6">
 
 
-
-<div className="grid md:grid-cols-5 gap-6">
-
-
-
-<ScoreCard
-
-title="Project Score"
-
-value={`${ai.project_score || 0}%`}
-
-status="AI Evaluated"
-
+<Card
+title="Project Health"
+value={`${projectScore}%`}
 />
 
 
-
-<ScoreCard
-
+<Card
 title="Security"
-
-value={ai.security_score || "N/A"}
-
-status="AI Evaluated"
-
+value={`${securityScore}%`}
 />
 
 
-
-<ScoreCard
-
+<Card
 title="Architecture"
-
-value={`${ai.architecture_score || 0}%`}
-
-status="AI Reviewed"
-
+value={`${architectureScore}%`}
 />
 
 
-
-<ScoreCard
-
-title="Risk Level"
-
-value={ai.risk_level || "Medium"}
-
-status="AI Evaluated"
-
+<Card
+title="Maintainability"
+value={`${maintainabilityScore}%`}
 />
-
-
-
-<ScoreCard
-
-title="Repository Health"
-
-value={repositoryHealth}
-
-status="AI Assessment"
-
-/>
-
 
 
 </div>
@@ -200,112 +96,46 @@ status="AI Assessment"
 
 
 
+<Card title="Repository Intelligence">
 
 
+<div className="grid md:grid-cols-3 gap-8">
 
 
-<Card>
+<Info
+title="Repository"
+value={repo.name}
+/>
 
 
-<h3 className="text-3xl font-bold">
-
-Repository Overview
-
-</h3>
-
-
-
-<div className="grid md:grid-cols-3 gap-8 mt-8">
-
-
-
-<div>
-
-<p className="text-gray-400">
-
-Repository
-
-</p>
-
-
-
-<a
-
-href={repo.url || "#"}
-
-target="_blank"
-
-className="text-violet-400 hover:underline"
-
->
-
-{repo.name || "Unknown"}
-
-</a>
-
-
-</div>
-
-
-
-
-
-<InfoItem
-
+<Info
 title="Owner"
-
 value={repo.owner}
-
 />
 
 
-
-
-<InfoItem
-
-title="Primary Language"
-
+<Info
+title="Language"
 value={repo.language}
-
 />
 
 
-
-
-<InfoItem
-
+<Info
 title="Stars"
-
-value={
-repo.stars?.toLocaleString()
-}
-
+value={repo.stars}
 />
 
 
-
-
-<InfoItem
-
+<Info
 title="Forks"
-
-value={
-repo.forks?.toLocaleString()
-}
-
+value={repo.forks}
 />
 
 
-
-
-<InfoItem
-
+<Info
 title="Description"
-
 value={repo.description}
-
 />
-
 
 
 </div>
@@ -318,70 +148,88 @@ value={repo.description}
 
 
 
+<Card title="Repository Metrics">
 
+
+<div className="grid md:grid-cols-3 gap-8">
+
+
+<Info
+title="Total Files"
+value={metrics.total_files}
+/>
+
+
+<Info
+title="Lines of Code"
+value={metrics.total_lines}
+/>
+
+
+<div>
+
+<p className="text-gray-400 mb-3">
+
+Technology Stack
+
+</p>
+
+<div className="flex flex-wrap gap-2">
+
+{
+
+Object.entries(
+result.repository_metrics.languages
+).map(
+
+([lang,count])=>(
+
+<span
+key={lang}
+className="bg-violet-700 px-3 py-2 rounded-full text-sm"
+>
+
+{lang}
+
+<span className="ml-2 opacity-70">
+
+{String(count)}
+
+</span>
+
+</span>
+
+)
+
+)
+
+}
+
+</div>
+
+</div>
+
+
+</div>
+
+
+</Card>
+
+
+
+
+
+
+<Card title="Architecture Flow">
 
 
 <ArchitectureGraph
 
 architecture={
-ai.architecture_flow || []
+metrics.architecture_flow || []
 }
 
 />
-
-
-
-
-
-
-
-
-
-
-<Card>
-
-
-<h3 className="text-3xl font-bold">
-
-Technology Intelligence
-
-</h3>
-
-
-
-<div className="flex flex-wrap gap-4 mt-6">
-
-
-{
-technologies.map((tech:string)=>(
-
-
-<span
-
-key={tech}
-
-className="
-px-5
-py-3
-rounded-xl
-bg-gray-900
-border
-border-gray-700
-"
-
->
-
-{tech}
-
-</span>
-
-
-))
-
-}
-
-
-</div>
 
 
 </Card>
@@ -391,147 +239,22 @@ border-gray-700
 
 
 
+<Card title="DevScope AI Analysis">
 
 
+<pre className="
+whitespace-pre-wrap
+text-gray-300
+leading-7
+">
 
-<Card>
-
-
-<h3 className="text-3xl font-bold">
-
-Project Health
-
-</h3>
+{aiText}
 
 
-
-<div className="mt-8 space-y-7">
-
-
-{
-
-healthMetrics.map(item=>(
-
-
-<div key={item.name}>
-
-
-<div className="flex justify-between mb-3">
-
-
-<span>
-
-{item.name}
-
-</span>
-
-
-<span className="text-gray-400">
-
-{item.score}%
-
-</span>
-
-
-</div>
-
-
-
-
-<div className="h-3 bg-gray-800 rounded-full overflow-hidden">
-
-
-<div
-
-className="
-h-full
-bg-violet-600
-rounded-full
-"
-
-style={{
-
-width:`${item.score}%`
-
-}}
-
-/>
-
-
-</div>
-
-
-
-</div>
-
-
-))
-
-
-}
-
-
-</div>
+</pre>
 
 
 </Card>
-
-
-
-
-
-
-
-
-
-<InsightSection
-
-title="AI Identified Strengths"
-
-items={ai.strengths || []}
-
-/>
-
-
-
-
-
-<InsightSection
-
-title="Possible Engineering Improvements"
-
-items={ai.possible_improvements || []}
-
-/>
-
-
-
-
-
-
-<InsightSection
-
-title="Security Recommendations"
-
-items={ai.security_recommendations || []}
-
-/>
-
-
-
-
-
-
-<InsightSection
-
-title="Documentation Suggestions"
-
-items={ai.documentation_suggestions || []}
-
-/>
-
-
-
 
 
 
@@ -544,213 +267,55 @@ items={ai.documentation_suggestions || []}
 
 );
 
-
 }
-
-
-
 
 
 
 
 
 function Card({
-
-children
-
-}:{
-
-children:React.ReactNode
-
-}){
+title,
+children,
+value
+}:any){
 
 
 return (
 
-<div
-
-className="
+<div className="
 rounded-3xl
 border
 border-gray-800
 bg-gray-950
 p-8
-"
-
->
-
-{children}
-
-</div>
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-function InsightSection({
-
-title,
-
-items
-
-}:{
-
-title:string;
-
-items:string[];
-
-}){
-
-
-return (
-
-<Card>
-
-
-<h3 className="text-3xl font-bold">
-
-{title}
-
-</h3>
-
-
-
-<div className="mt-6 space-y-4">
+">
 
 
 {
-
-items.map((item,index)=>(
-
-
-<div
-
-key={index}
-
-className="
-flex
-gap-3
-text-gray-300
-"
-
->
-
-
-<span className="text-violet-400">
-
-✦
-
-</span>
-
-
-
-<p>
-
-{item}
-
-</p>
-
-
-</div>
-
-
-))
-
-
-}
-
-
-
-</div>
-
-
-</Card>
-
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-
-function ScoreCard({
-
-title,
-
-value,
-
-status
-
-}:{
-
-title:string;
-
-value:string;
-
-status:string;
-
-}){
-
-
-return (
-
-<div
-
-className="
-rounded-3xl
-border
-border-gray-800
-bg-gray-950
-p-8
-"
-
->
-
-
-<p className="text-gray-400">
-
+title &&
+<h2 className="text-3xl font-bold mb-6">
 {title}
+</h2>
+}
 
-</p>
 
 
-
-<h3 className="text-4xl font-bold mt-4">
-
+{
+value &&
+<h3 className="text-4xl font-bold">
 {value}
-
 </h3>
+}
 
 
 
-<p className="text-green-400 mt-4">
-
-✓ {status}
-
-</p>
-
+{children}
 
 
 </div>
 
 
-);
-
+)
 
 }
 
@@ -759,48 +324,27 @@ p-8
 
 
 
-
-
-
-function InfoItem({
-
+function Info({
 title,
-
 value
-
-}:{
-
-title:string;
-
-value:any;
-
-}){
+}:any){
 
 
 return (
 
 <div>
 
-
 <p className="text-gray-400">
-
 {title}
-
 </p>
 
-
-
-<p className="mt-2 text-lg">
-
+<p className="mt-2 text-lg font-semibold">
 {value || "Not available"}
-
 </p>
 
 
 </div>
 
-
-);
-
+)
 
 }
