@@ -179,7 +179,7 @@ Technology Stack
 {
 
 Object.entries(
-result.repository_metrics.languages
+metrics.languages || {}
 ).map(
 
 ([lang,count])=>(
