@@ -1,6 +1,7 @@
 # 🚀 DevScope AI
 
 > AI-powered GitHub Repository Intelligence Platform for analyzing software repositories, evaluating engineering quality, visualizing architecture, and generating comprehensive AI-driven reports.
+> The frontend is deployed on Vercel, while the FastAPI backend is hosted on Render, enabling end-to-end AI-powered repository analysis.
 
 <p align="center">
 
@@ -15,17 +16,20 @@
 
 </p>
 
+![Stars](https://img.shields.io/github/stars/yanipatel64/devscope-ai?style=for-the-badge)
+![Forks](https://img.shields.io/github/forks/yanipatel64/devscope-ai?style=for-the-badge)
+![Last Commit](https://img.shields.io/github/last-commit/yanipatel64/devscope-ai?style=for-the-badge)
+
+
+<p align="center">
+  <img src="docs/dashboard.png" alt="DevScope AI Dashboard" width="100%" />
+</p>
+
 ---
 
-# 🌐 Live Demo
+🌐 **Live Demo:** [devscope-ai-delta.vercel.app](https://devscope-ai-delta.vercel.app)
 
-### 🚀 Frontend
-
-https://devscope-ai-delta.vercel.app
-
-### 📂 GitHub Repository
-
-https://github.com/yanipatel64/devscope-ai
+📂 **Repository:** [github.com/yanipatel64/devscope-ai](https://github.com/yanipatel64/devscope-ai)
 
 ---
 
@@ -38,6 +42,29 @@ Instead of manually exploring project structures, users can submit a GitHub repo
 The platform combines automated repository scanning with Google's Gemini AI to generate comprehensive engineering documentation within seconds.
 
 ---
+
+## 📑 Table of Contents
+
+- [Overview](#-overview)
+- [Why DevScope AI?](#-why-devscope-ai)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [Tech Stack](#-tech-stack)
+- [Analysis Workflow](#-analysis-workflow)
+- [Project Structure](#-project-structure)
+- [Dashboard Highlights](#-dashboard-highlights)
+- [Screenshots](#-screenshots)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Future Enhancements](#-future-enhancements)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+## 🎯 Why DevScope AI?
+
+Developers often spend significant time understanding unfamiliar repositories before contributing or maintaining them.
+
+DevScope AI streamlines this process by combining repository scanning with AI-powered analysis to generate engineering insights, architecture summaries, quality metrics, and actionable recommendations within seconds.
 
 # ✨ Key Features
 
@@ -159,20 +186,31 @@ devscope-ai/
 │   ├── app/
 │   ├── components/
 │   ├── context/
+│   ├── public/
 │   ├── types/
-│   └── public/
+│   └── package.json
 │
 ├── backend/
 │   ├── app/
 │   │   ├── api/
-│   │   ├── services/
+│   │   ├── core/
 │   │   ├── models/
-│   │   └── core/
-│   └── requirements.txt
+│   │   └── services/
+│   ├── requirements.txt
+│   └── main.py
 │
+├── docs/
+│   ├── landing-page.png
+│   ├── dashboard.png
+│   ├── repository-overview.png
+│   ├── analytics.png
+│   ├── architecture.png
+│   ├── recommendations.png
+│   └── pdf-report.png
+│
+├── LICENSE
 └── README.md
 ```
-
 ---
 
 # 📈 Dashboard Highlights
@@ -235,6 +273,13 @@ The platform provides:
 ![PDF Report](docs/pdf-report.png)
 
 ---
+
+# 📋 Prerequisites
+
+- Node.js 20+
+- Python 3.11+
+- Git
+- Google Gemini API Key
 
 # 🚀 Installation
 
